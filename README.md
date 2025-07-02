@@ -1,4 +1,5 @@
 # RISC-V Single Cycle CPU - Universal Code (SC1 & SC2)
+# Nguyễn Mạnh Toàn - 20240213E
 
 ## 📚 **Giới thiệu**
 
