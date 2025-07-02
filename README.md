@@ -45,7 +45,7 @@
 - **SC2:**  
   - Đặt các file: `./mem/imem2.hex`, `./mem/dmem_init2.hex`, `./mem/golden_output2.txt`
 
-> Nếu chấm trên autograder của trường, các file này sẽ được cấp sẵn hoặc copy đúng vào thư mục chấm.
+
 
 ### **3. Chạy lệnh chấm điểm**
 python3 /srv/calab_grade/CA_Lab-2025/scripts/calab_grade.py sc1 ALU.v  ALU_decoder.v  Branch_Comp.v  DMEM.v  IMEM.v  Imm_Gen.v  RISCV_Single_Cycle.v  RegisterFile.v  control_unit.v
@@ -53,3 +53,39 @@ python3 /srv/calab_grade/CA_Lab-2025/scripts/calab_grade.py sc1 ALU.v  ALU_decod
 python3 /srv/calab_grade/CA_Lab-2025/scripts/calab_grade.py sc2 ALU.v  ALU_decoder.v  Branch_Comp.v  DMEM.v  IMEM.v  Imm_Gen.v  RISCV_Single_Cycle.v  RegisterFile.v  control_unit.v
 
 
+## 📋 **Kiểm tra kết quả chi tiết trong sim.log**
+
+Sau khi chạy lệnh chấm điểm, ngoài thông báo pass/fail trên màn hình, bạn nên kiểm tra chi tiết file log kết quả tại:
+
+- **Đường dẫn file log:**  
+  `/tmp/grade_<tên_user>/sim.log`  
+  (Ví dụ: `/tmp/grade_toannguyen/sim.log`)
+
+### **Cách kiểm tra**
+
+1. **Mở file sim.log bằng lệnh:**
+    ```bash
+    cat /tmp/grade_<tên_user>/sim.log
+    ```
+    Hoặc dùng bất kỳ trình soạn thảo văn bản nào (nano, vim, less...).
+
+2. **Nội dung bạn cần để ý:**
+    - Nếu **pass** hoàn toàn sẽ thấy dòng:
+      ```
+      🎉 All memory contents match golden output! All tests passed.
+      ```
+    - Nếu có lỗi sẽ thấy các dòng báo mismatch ví dụ:
+      ```
+      ❗ PC mismatch at cycle 25: DUT = 00000050, Golden = 00000054
+      ❗ x3 mismatch at cycle 38: DUT = 0000000a, Golden = 0000000b
+      ❗ Dmem[7] mismatch at cycle 77: DUT = 00000000, Golden = 0000000f
+      ```
+      *Các thông báo này chỉ ra chính xác cycle nào, thanh ghi nào, ô nhớ nào bị sai.*
+
+    - Nếu bị timeout do chương trình không dừng đúng, sẽ báo:
+      ```
+      ❗ ERROR: Simulation timed out after 10000 cycles!
+      ```
+
+
+---
