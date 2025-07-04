@@ -1,14 +1,7 @@
-# RISC-V Single Cycle CPU - Universal Code (SC1 & SC2)
-# Nguyễn Mạnh Toàn - 20240213E
-
-## 📚 **Giới thiệu**
-
-Đây là bộ code **RISC-V Single Cycle** hoàn chỉnh, có thể chạy pass cả **SC1** và **SC2** trên hệ thống tự động chấm điểm của trường/công cụ chuẩn.
+# RISC-V Single Cycle CPU (SC1 & SC2)
 
 
----
-
-## 🏗️ **Cấu trúc các file**
+## **Components**
 
 - `RISCV_Single_Cycle.v`         : Top module của CPU.
 - `ALU.v`                        : Khối thực hiện các phép toán số học & logic.
@@ -22,7 +15,7 @@
 
 ---
 
-## 🔎 **Chức năng nổi bật**
+##  **Function**
 
 - **Dùng chung cho cả SC1 và SC2:**  
   Không cần đổi code, chỉ cần cấp đúng file `.hex` tương ứng với từng test.
@@ -34,27 +27,21 @@
 
 ---
 
-## 🚀 **Hướng dẫn chạy/submit code**
+## **Hướng dẫn chạy/submit code**
 
-### **1. Chuẩn bị code**
-- Copy toàn bộ các file `.v` này vào một folder mới (không để sót file nào).
-- Không cần chỉnh sửa gì thêm, mọi thứ đã sẵn sàng để nộp.
-
-### **2. Đảm bảo các file dữ liệu cho đúng test**
 - **SC1:**  
   - Đặt các file: `./mem/imem.hex`, `./mem/dmem_init.hex`, `./mem/golden_output.txt`
 - **SC2:**  
   - Đặt các file: `./mem/imem2.hex`, `./mem/dmem_init2.hex`, `./mem/golden_output2.txt`
 
 
-
-### **3. Chạy lệnh chấm điểm**
+### ** Chạy lệnh test**
 python3 /srv/calab_grade/CA_Lab-2025/scripts/calab_grade.py sc1 ALU.v  ALU_decoder.v  Branch_Comp.v  DMEM.v  IMEM.v  Imm_Gen.v  RISCV_Single_Cycle.v  RegisterFile.v  control_unit.v
 
 python3 /srv/calab_grade/CA_Lab-2025/scripts/calab_grade.py sc2 ALU.v  ALU_decoder.v  Branch_Comp.v  DMEM.v  IMEM.v  Imm_Gen.v  RISCV_Single_Cycle.v  RegisterFile.v  control_unit.v
 
 
-## 📋 **Kiểm tra kết quả chi tiết trong sim.log**
+## **Check result in sim.log**
 
 Sau khi chạy lệnh chấm điểm, ngoài thông báo pass/fail trên màn hình, bạn nên kiểm tra chi tiết file log kết quả tại:
 
@@ -70,11 +57,7 @@ Sau khi chạy lệnh chấm điểm, ngoài thông báo pass/fail trên màn h�
     ```
     Hoặc dùng bất kỳ trình soạn thảo văn bản nào (nano, vim, less...).
 
-2. **Nội dung bạn cần để ý:**
-    - Nếu **pass** hoàn toàn sẽ thấy dòng:
-      ```
-      🎉 All memory contents match golden output! All tests passed.
-      ```
+2. **Attention!!:**
     - Nếu có lỗi sẽ thấy các dòng báo mismatch ví dụ:
       ```
       ❗ PC mismatch at cycle 25: DUT = 00000050, Golden = 00000054
