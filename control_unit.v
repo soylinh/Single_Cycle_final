@@ -75,6 +75,18 @@ module control_unit (
                 MemToReg = 0;
                 ALUOp = 4'b0000;
             end
+            7'b0110111: begin // lui
+                ALUSrc = 2'b01;
+                RegWrite = 1;
+                MemToReg = 0;
+                ALUOp = 4'b0000; // Pass immediate through ALU
+            end
+            7'b0010111: begin // auipc
+                ALUSrc = 2'b11;  // ALUSrc[1]=1 for PC, ALUSrc[0]=1 for immediate
+                RegWrite = 1;
+                MemToReg = 0;
+                ALUOp = 4'b0000; // Add PC + immediate
+            end
             default: ;
         endcase
     end

@@ -6,8 +6,10 @@ module RISCV_Single_Cycle(
 );
 
     // ============================
-    // 1. Program Counter
+    // FETCH STAGE
     // ============================
+
+    // 1. Program Counter
     logic [31:0] PC_next;
 
     always_ff @(posedge clk or negedge rst_n) begin
@@ -17,17 +19,17 @@ module RISCV_Single_Cycle(
             PC_out_top <= PC_next;
     end
 
-    // ============================
     // 2. Instruction Memory
-    // ============================
     IMEM IMEM_inst(
         .addr(PC_out_top),
         .Instruction(Instruction_out_top)
     );
 
     // ============================
-    // 3. Decode Instruction Fields
+    // DECODE STAGE
     // ============================
+
+    // 3. Decode Instruction Fields
     logic [4:0] rs1, rs2, rd;
     logic [2:0] funct3;
     logic [6:0] opcode, funct7;
@@ -39,37 +41,8 @@ module RISCV_Single_Cycle(
     assign rs2    = Instruction_out_top[24:20];
     assign funct7 = Instruction_out_top[31:25];
 
-    // ============================
-    // 4. Immediate Generator
-    // ============================
-    logic [31:0] Imm;
-
-    Imm_Gen imm_gen(
-        .inst(Instruction_out_top),
-        .imm_out(Imm)
-    );
-
-    // ============================
-    // 5. Register File
-    // ============================
-    logic [31:0] ReadData1, ReadData2, WriteData;
-
-    RegisterFile Reg_inst(
-        .clk(clk),
-        .rst_n(rst_n),
-        .RegWrite(RegWrite),
-        .rs1(rs1),
-        .rs2(rs2),
-        .rd(rd),
-        .WriteData(WriteData),
-        .ReadData1(ReadData1),
-        .ReadData2(ReadData2)
-    );
-
-    // ============================
-    // 6. Control Unit
-    // ============================
-    logic ALUSrc;
+    // 4. Control Unit
+    logic [1:0] ALUSrc;  // Fixed: Match control_unit.v output width
     logic [3:0] ALUCtrl;
     logic Branch, MemRead, MemWrite, MemToReg;
     logic RegWrite, PCSel;
@@ -87,30 +60,68 @@ module RISCV_Single_Cycle(
         .RegWrite(RegWrite)
     );
 
+    // 5. Immediate Generator
+    logic [31:0] Imm;
+
+    Imm_Gen imm_gen(
+        .inst(Instruction_out_top),
+        .imm_out(Imm)
+    );
+
+    // 6. Register File
+    logic [31:0] ReadData1, ReadData2, WriteData;
+
+    RegisterFile Reg_inst(
+        .clk(clk),
+        .rst_n(rst_n),
+        .RegWrite(RegWrite),
+        .rs1(rs1),
+        .rs2(rs2),
+        .rd(rd),
+        .WriteData(WriteData),
+        .ReadData1(ReadData1),
+        .ReadData2(ReadData2)
+    );
+
     // ============================
+    // EXECUTE STAGE
+    // ============================
+
     // 7. ALU Input Selection
-    // ============================
-    logic [31:0] ALU_in2;
+    logic [31:0] ALU_in1, ALU_in2;
 
-    assign ALU_in2 = (ALUSrc) ? Imm : ReadData2;
+    // ALU Input 1: ReadData1 for most instructions, PC for AUIPC
+    assign ALU_in1 = (ALUSrc[1]) ? PC_out_top : ReadData1;
 
-    // ============================
+    // ALU Input 2: Immediate for I/S/B/U/J types, ReadData2 for R-type
+    assign ALU_in2 = (ALUSrc[0]) ? Imm : ReadData2;
+
     // 8. ALU
-    // ============================
     logic [31:0] ALU_result;
     logic ALUZero;
 
     ALU alu(
-        .A(ReadData1),
+        .A(ALU_in1),
         .B(ALU_in2),
         .ALUOp(ALUCtrl),
         .Result(ALU_result),
         .Zero(ALUZero)
     );
 
+    // 9. Branch Comparator
+    Branch_Comp comp(
+        .A(ReadData1),
+        .B(ReadData2),
+        .Branch(Branch),
+        .funct3(funct3),
+        .BrTaken(PCSel)
+    );
+
     // ============================
-    // 9. Data Memory
+    // MEMORY STAGE
     // ============================
+
+    // 10. Data Memory
     logic [31:0] MemReadData;
 
     DMEM DMEM_inst(
@@ -124,24 +135,17 @@ module RISCV_Single_Cycle(
     );
 
     // ============================
-    // 10. Write-back Mux
+    // WRITE-BACK STAGE
     // ============================
+
+    // 11. Write-back Mux
     assign WriteData = (MemToReg) ? MemReadData : ALU_result;
 
     // ============================
-    // 11. Branch Comparator
+    // PC UPDATE
     // ============================
-    Branch_Comp comp(
-        .A(ReadData1),
-        .B(ReadData2),
-        .Branch(Branch),
-        .funct3(funct3),
-        .BrTaken(PCSel)
-    );
 
-    // ============================
     // 12. Next PC Logic
-    // ============================
     assign PC_next = (PCSel) ? PC_out_top + Imm : PC_out_top + 4;
 
 endmodule
